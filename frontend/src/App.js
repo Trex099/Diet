@@ -22,37 +22,83 @@ const saveToStorage = (key, data) => {
 
 // Food Entry Component
 const FoodEntryCard = ({ entry, onClick }) => {
+  const [showImageModal, setShowImageModal] = useState(false);
+
   return (
-    <div 
-      className="food-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-400 cursor-pointer transform hover:scale-[1.02]"
-      onClick={() => onClick(entry)}
-    >
-      {entry.image ? (
-        <div className="relative h-48 overflow-hidden">
-          <img 
-            src={entry.image} 
-            alt={entry.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <div className="absolute bottom-4 left-4 text-white">
-            <h3 className="font-bold text-lg">{entry.name}</h3>
-            <p className="text-sm opacity-90">{entry.mealType} • {entry.time}</p>
-            {entry.calories && (
-              <p className="text-xs opacity-75">{entry.calories} cal</p>
+    <>
+      <div 
+        className="food-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-400 cursor-pointer transform hover:scale-[1.02] relative"
+        onClick={() => onClick(entry)}
+      >
+        {entry.image ? (
+          <div className="relative h-48 overflow-hidden">
+            <img 
+              src={entry.image} 
+              alt={entry.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4 text-white">
+              <h3 className="font-bold text-lg">{entry.name}</h3>
+              <p className="text-sm opacity-90">{entry.mealType} • {entry.time}</p>
+              {(entry.calories || entry.protein || entry.carbs || entry.fat) && (
+                <div className="text-xs opacity-75 mt-1">
+                  {entry.calories && `${entry.calories} cal`}
+                  {entry.protein && ` • ${entry.protein}g protein`}
+                  {entry.carbs && ` • ${entry.carbs}g carbs`}
+                  {entry.fat && ` • ${entry.fat}g fat`}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowImageModal(true);
+              }}
+              className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="p-6">
+            <h3 className="font-bold text-gray-800 text-lg">{entry.name}</h3>
+            <p className="text-gray-600 text-sm">{entry.mealType} • {entry.time}</p>
+            {(entry.calories || entry.protein || entry.carbs || entry.fat) && (
+              <div className="text-gray-500 text-xs mt-1">
+                {entry.calories && `${entry.calories} cal`}
+                {entry.protein && ` • ${entry.protein}g protein`}
+                {entry.carbs && ` • ${entry.carbs}g carbs`}
+                {entry.fat && ` • ${entry.fat}g fat`}
+              </div>
             )}
           </div>
-        </div>
-      ) : (
-        <div className="p-6">
-          <h3 className="font-bold text-gray-800 text-lg">{entry.name}</h3>
-          <p className="text-gray-600 text-sm">{entry.mealType} • {entry.time}</p>
-          {entry.calories && (
-            <p className="text-gray-500 text-xs mt-1">{entry.calories} cal</p>
-          )}
+        )}
+      </div>
+
+      {/* Image Modal */}
+      {showImageModal && entry.image && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <div className="relative max-w-full max-h-full">
+            <img 
+              src={entry.image} 
+              alt={entry.name}
+              className="max-w-full max-h-full object-contain rounded-xl"
+            />
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm text-white p-3 rounded-xl">
+              <h3 className="font-bold text-lg">{entry.name}</h3>
+              <p className="text-sm opacity-90">{entry.mealType} • {entry.time}</p>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
