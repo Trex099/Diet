@@ -130,10 +130,13 @@ const WaterTracker = ({ dailyGoal = 8, currentIntake, onAddWater }) => {
 };
 
 // Add Food Modal
-const AddFoodModal = ({ isOpen, onClose, onAddFood }) => {
+const AddFoodModal = ({ isOpen, onClose, onAddFood, isPantry = false }) => {
   const [name, setName] = useState('');
   const [mealType, setMealType] = useState('breakfast');
   const [calories, setCalories] = useState('');
+  const [protein, setProtein] = useState('');
+  const [carbs, setCarbs] = useState('');
+  const [fat, setFat] = useState('');
   const [image, setImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -157,19 +160,26 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood }) => {
     const entry = {
       id: uuidv4(),
       name: name.trim(),
-      mealType,
+      mealType: isPantry ? 'meal' : mealType,
       calories: calories ? parseInt(calories) : null,
+      protein: protein ? parseInt(protein) : null,
+      carbs: carbs ? parseInt(carbs) : null,
+      fat: fat ? parseInt(fat) : null,
       image,
-      time: format(new Date(), 'HH:mm'),
-      date: format(new Date(), 'yyyy-MM-dd'),
-      timestamp: new Date().toISOString()
+      time: isPantry ? null : format(new Date(), 'HH:mm'),
+      date: isPantry ? null : format(new Date(), 'yyyy-MM-dd'),
+      timestamp: new Date().toISOString(),
+      isPantryItem: isPantry
     };
 
     onAddFood(entry);
     setName('');
     setCalories('');
+    setProtein('');
+    setCarbs('');
+    setFat('');
     setImage(null);
-    toast.success('Food logged successfully!');
+    toast.success(isPantry ? 'Food added to pantry!' : 'Food logged successfully!');
     onClose();
   };
 
@@ -180,7 +190,9 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood }) => {
       <div className="bg-white rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-800">Add Food</h2>
+            <h2 className="text-xl font-bold text-gray-800">
+              {isPantry ? 'Add to Pantry' : 'Add Food'}
+            </h2>
             <button 
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -229,34 +241,36 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood }) => {
               )}
             </div>
 
-            {/* Meal Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Meal Type
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { value: 'breakfast', icon: Coffee, label: 'Breakfast' },
-                  { value: 'lunch', icon: Sun, label: 'Lunch' },
-                  { value: 'dinner', icon: Moon, label: 'Dinner' },
-                  { value: 'snack', icon: Utensils, label: 'Snack' }
-                ].map(({ value, icon: Icon, label }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setMealType(value)}
-                    className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${
-                      mealType === value
-                        ? 'bg-pink-100 text-pink-600 border-2 border-pink-300'
-                        : 'bg-gray-50 text-gray-600 border-2 border-transparent hover:bg-gray-100'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs font-medium">{label}</span>
-                  </button>
-                ))}
+            {/* Meal Type (only for daily log, not pantry) */}
+            {!isPantry && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Meal Type
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { value: 'breakfast', icon: Coffee, label: 'Breakfast' },
+                    { value: 'lunch', icon: Sun, label: 'Lunch' },
+                    { value: 'dinner', icon: Moon, label: 'Dinner' },
+                    { value: 'snack', icon: Utensils, label: 'Snack' }
+                  ].map(({ value, icon: Icon, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setMealType(value)}
+                      className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${
+                        mealType === value
+                          ? 'bg-pink-100 text-pink-600 border-2 border-pink-300'
+                          : 'bg-gray-50 text-gray-600 border-2 border-transparent hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="text-xs font-medium">{label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Food Name */}
             <div>
@@ -267,24 +281,47 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood }) => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="What did you eat?"
+                placeholder={isPantry ? "What food are you adding?" : "What did you eat?"}
                 className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                 required
               />
             </div>
 
-            {/* Calories */}
+            {/* Macros */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Calories (Optional)
+                Nutrition (Optional)
               </label>
-              <input
-                type="number"
-                value={calories}
-                onChange={(e) => setCalories(e.target.value)}
-                placeholder="Estimated calories"
-                className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="number"
+                  value={calories}
+                  onChange={(e) => setCalories(e.target.value)}
+                  placeholder="Calories"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                />
+                <input
+                  type="number"
+                  value={protein}
+                  onChange={(e) => setProtein(e.target.value)}
+                  placeholder="Protein (g)"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                />
+                <input
+                  type="number"
+                  value={carbs}
+                  onChange={(e) => setCarbs(e.target.value)}
+                  placeholder="Carbs (g)"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                />
+                <input
+                  type="number"
+                  value={fat}
+                  onChange={(e) => setFat(e.target.value)}
+                  placeholder="Fat (g)"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                />
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -292,7 +329,7 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood }) => {
               type="submit"
               className="w-full bg-pink-500 text-white py-3 rounded-xl font-medium hover:bg-pink-600 transition-colors"
             >
-              Log Food
+              {isPantry ? 'Add to Pantry' : 'Log Food'}
             </button>
           </form>
         </div>
