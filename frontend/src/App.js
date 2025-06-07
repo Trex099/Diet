@@ -715,7 +715,7 @@ const TodayScreen = () => {
 
 // History Screen
 const HistoryScreen = () => {
-  const [foodEntries] = useState(() => loadFromStorage('foodEntries', []));
+  const [foodEntries, setFoodEntries] = useState(() => loadFromStorage('foodEntries', []));
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   
@@ -731,6 +731,13 @@ const HistoryScreen = () => {
     }, {});
 
   const dates = Object.keys(entriesByDate).sort().reverse();
+
+  const deleteFood = (entryId) => {
+    const newEntries = foodEntries.filter(entry => entry.id !== entryId);
+    setFoodEntries(newEntries);
+    saveToStorage('foodEntries', newEntries);
+    toast.success('Meal deleted successfully');
+  };
 
   const handleEntryClick = (entry) => {
     setSelectedEntry(entry);
@@ -763,21 +770,39 @@ const HistoryScreen = () => {
                 {entriesByDate[date].map(entry => (
                   <div 
                     key={entry.id} 
-                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleEntryClick(entry)}
+                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg relative group"
                   >
-                    {entry.image && (
-                      <img src={entry.image} alt={entry.name} className="w-12 h-12 object-cover rounded-lg" />
-                    )}
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-800">{entry.name}</p>
-                      <p className="text-sm text-gray-600">{entry.mealType} • {entry.time}</p>
-                    </div>
-                    <div className="text-right">
-                      {entry.calories && (
-                        <span className="text-sm text-gray-500">{entry.calories} cal</span>
+                    {/* Delete Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('Are you sure you want to delete this meal?')) {
+                          deleteFood(entry.id);
+                        }
+                      }}
+                      className="absolute top-2 right-2 bg-red-100 text-red-600 p-1 rounded-full hover:bg-red-200 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                    
+                    {/* Clickable Content */}
+                    <div 
+                      className="flex items-center gap-3 flex-1 cursor-pointer hover:bg-gray-100 rounded-lg p-1 transition-colors"
+                      onClick={() => handleEntryClick(entry)}
+                    >
+                      {entry.image && (
+                        <img src={entry.image} alt={entry.name} className="w-12 h-12 object-cover rounded-lg" />
                       )}
-                      <Eye className="w-4 h-4 text-gray-400 mt-1" />
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-800">{entry.name}</p>
+                        <p className="text-sm text-gray-600">{entry.mealType} • {entry.time}</p>
+                      </div>
+                      <div className="text-right pr-8">
+                        {entry.calories && (
+                          <span className="text-sm text-gray-500">{entry.calories} cal</span>
+                        )}
+                        <Eye className="w-4 h-4 text-gray-400 mt-1 mx-auto" />
+                      </div>
                     </div>
                   </div>
                 ))}
