@@ -21,8 +21,16 @@ const saveToStorage = (key, data) => {
 };
 
 // Food Entry Component
-const FoodEntryCard = ({ entry, onClick }) => {
+const FoodEntryCard = ({ entry, onClick, onDelete }) => {
   const [showImageModal, setShowImageModal] = useState(false);
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this meal?')) {
+      onDelete(entry.id);
+      toast.success('Meal deleted successfully');
+    }
+  };
 
   return (
     <>
@@ -50,6 +58,16 @@ const FoodEntryCard = ({ entry, onClick }) => {
                 </div>
               )}
             </div>
+            
+            {/* Delete Button */}
+            <button
+              onClick={handleDelete}
+              className="absolute top-4 right-4 bg-red-500/80 backdrop-blur-sm text-white p-2 rounded-full hover:bg-red-600/90 transition-colors z-10"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            
+            {/* Maximize Button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -61,8 +79,16 @@ const FoodEntryCard = ({ entry, onClick }) => {
             </button>
           </div>
         ) : (
-          <div className="p-6">
-            <h3 className="font-bold text-gray-800 text-lg">{entry.name}</h3>
+          <div className="p-6 relative">
+            {/* Delete Button for non-image cards */}
+            <button
+              onClick={handleDelete}
+              className="absolute top-3 right-3 bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-200 transition-colors z-10"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            
+            <h3 className="font-bold text-gray-800 text-lg pr-12">{entry.name}</h3>
             <p className="text-gray-600 text-sm">{entry.mealType} • {entry.time}</p>
             {(entry.calories || entry.protein || entry.carbs || entry.fat) && (
               <div className="text-gray-500 text-xs mt-1">
