@@ -651,6 +651,7 @@ const TodayScreen = () => {
   const [foodEntries, setFoodEntries] = useState(() => loadFromStorage('foodEntries', []));
   const [waterIntake, setWaterIntake] = useState(() => loadFromStorage('waterIntake', 0));
   const [waterGoal, setWaterGoal] = useState(() => loadFromStorage('waterGoal', 8));
+  const [waterUnit, setWaterUnit] = useState(() => loadFromStorage('waterUnit', 'glasses'));
   const [showAddFood, setShowAddFood] = useState(false);
   const [showWaterEdit, setShowWaterEdit] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -674,17 +675,22 @@ const TodayScreen = () => {
   };
 
   const addWater = () => {
-    const newIntake = waterIntake + 1;
+    const increment = waterUnit === 'bottles' ? 1 : 1; // 1 litre or 1 glass
+    const newIntake = waterIntake + increment;
     setWaterIntake(newIntake);
     saveToStorage('waterIntake', newIntake);
-    toast.success('Water logged! 💧');
+    
+    const unitLabel = waterUnit === 'bottles' ? 'litre' : 'glass';
+    toast.success(`${unitLabel} logged! 💧`);
   };
 
-  const updateWater = (newIntake, newGoal) => {
+  const updateWater = (newIntake, newGoal, newUnit) => {
     setWaterIntake(newIntake);
     setWaterGoal(newGoal);
+    setWaterUnit(newUnit);
     saveToStorage('waterIntake', newIntake);
     saveToStorage('waterGoal', newGoal);
+    saveToStorage('waterUnit', newUnit);
   };
 
   const handleCardClick = (entry) => {
@@ -718,6 +724,7 @@ const TodayScreen = () => {
         <WaterTracker 
           currentIntake={waterIntake}
           dailyGoal={waterGoal}
+          waterUnit={waterUnit}
           onAddWater={addWater}
           onEditWater={() => setShowWaterEdit(true)}
         />
@@ -759,6 +766,7 @@ const TodayScreen = () => {
         onClose={() => setShowWaterEdit(false)}
         currentIntake={waterIntake}
         dailyGoal={waterGoal}
+        waterUnit={waterUnit}
         onUpdate={updateWater}
       />
 
