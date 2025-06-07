@@ -340,7 +340,7 @@ const TodayScreen = () => {
       {/* FAB */}
       <button
         onClick={() => setShowAddFood(true)}
-        className="fixed bottom-6 right-6 bg-pink-500 text-white p-4 rounded-full shadow-lg hover:bg-pink-600 hover:scale-110 transition-all duration-300"
+        className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-pink-500 text-white p-4 rounded-full shadow-lg hover:bg-pink-600 hover:scale-110 transition-all duration-300 z-10"
       >
         <Plus className="w-6 h-6" />
       </button>
