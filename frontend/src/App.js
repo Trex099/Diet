@@ -518,27 +518,31 @@ const FoodDetailModal = ({ entry, isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto">
-        <div className="relative">
-          {entry.image && (
-            <div className="h-64 overflow-hidden rounded-t-2xl">
-              <img 
-                src={entry.image} 
-                alt={entry.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+      <div className="bg-white rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto relative">
+        {/* Close Button - Always visible */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 bg-gray-100 text-gray-600 p-2 rounded-full hover:bg-gray-200 transition-colors z-20"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Image Section */}
+        {entry.image && (
+          <div className="h-64 overflow-hidden rounded-t-2xl relative">
+            <img 
+              src={entry.image} 
+              alt={entry.name}
+              className="w-full h-full object-cover"
+            />
+            {/* Gradient overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          </div>
+        )}
         
+        {/* Content Section */}
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{entry.name}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2 pr-8">{entry.name}</h2>
           <p className="text-gray-600 mb-4">
             {entry.mealType} {entry.time && `• ${entry.time}`}
           </p>
@@ -574,6 +578,14 @@ const FoodDetailModal = ({ entry, isOpen, onClose }) => {
               </div>
             </div>
           )}
+
+          {/* Close button at bottom for easier access */}
+          <button
+            onClick={onClose}
+            className="w-full mt-6 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
