@@ -129,15 +129,16 @@ const FoodEntryCard = ({ entry, onClick, onDelete }) => {
 };
 
 // Water Tracker Component
-const WaterTracker = ({ dailyGoal = 8, currentIntake, onAddWater, onEditWater }) => {
+const WaterTracker = ({ dailyGoal = 8, currentIntake, onAddWater, onEditWater, waterUnit = 'glasses' }) => {
   const percentage = Math.min((currentIntake / dailyGoal) * 100, 100);
+  const unitLabel = waterUnit === 'bottles' ? 'litres' : 'glasses';
   
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-800">Water Intake</h3>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">{currentIntake}/{dailyGoal} glasses</span>
+          <span className="text-sm text-gray-600">{currentIntake}/{dailyGoal} {unitLabel}</span>
           <button
             onClick={onEditWater}
             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
