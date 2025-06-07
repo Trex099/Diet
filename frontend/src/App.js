@@ -79,7 +79,7 @@ const FoodEntryCard = ({ entry, onClick, onDelete }) => {
             </button>
           </div>
         ) : (
-          <div className="p-6 relative">
+          <div className="h-48 p-6 relative flex flex-col justify-center">
             {/* Delete Button for non-image cards */}
             <button
               onClick={handleDelete}
@@ -88,10 +88,10 @@ const FoodEntryCard = ({ entry, onClick, onDelete }) => {
               <Trash2 className="w-4 h-4" />
             </button>
             
-            <h3 className="font-bold text-gray-800 text-lg pr-12">{entry.name}</h3>
-            <p className="text-gray-600 text-sm">{entry.mealType} • {entry.time}</p>
+            <h3 className="font-bold text-gray-800 text-lg pr-12 mb-2">{entry.name}</h3>
+            <p className="text-gray-600 text-sm mb-3">{entry.mealType} • {entry.time}</p>
             {(entry.calories || entry.protein || entry.carbs || entry.fat) && (
-              <div className="text-gray-500 text-xs mt-1">
+              <div className="text-gray-500 text-xs">
                 {entry.calories && `${entry.calories} cal`}
                 {entry.protein && ` • ${entry.protein}g protein`}
                 {entry.carbs && ` • ${entry.carbs}g carbs`}
