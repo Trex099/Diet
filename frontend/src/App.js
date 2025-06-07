@@ -174,6 +174,10 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood, isPantry = false }) => {
   const [fat, setFat] = useState('');
   const [image, setImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPantryDropdown, setShowPantryDropdown] = useState(false);
+
+  // Get pantry items
+  const pantryItems = loadFromStorage('foodEntries', []).filter(item => item.isPantryItem);
 
   const handleImageCapture = (e) => {
     const file = e.target.files[0];
@@ -186,6 +190,17 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood, isPantry = false }) => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handlePantryItemSelect = (item) => {
+    setName(item.name);
+    setCalories(item.calories || '');
+    setProtein(item.protein || '');
+    setCarbs(item.carbs || '');
+    setFat(item.fat || '');
+    setImage(item.image);
+    setShowPantryDropdown(false);
+    toast.success('Food added from pantry!');
   };
 
   const handleSubmit = (e) => {
@@ -237,6 +252,67 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood, isPantry = false }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Add from Pantry - Only show for daily logging, not when adding to pantry */}
+            {!isPantry && pantryItems.length > 0 && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowPantryDropdown(!showPantryDropdown)}
+                  className="w-full flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Book className="w-5 h-5 text-blue-600" />
+                    <span className="font-medium text-blue-600">Add from Pantry</span>
+                  </div>
+                  <div className={`transform transition-transform ${showPantryDropdown ? 'rotate-180' : ''}`}>
+                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Pantry Items Dropdown */}
+                {showPantryDropdown && (
+                  <div className="mt-3 max-h-60 overflow-y-auto bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="p-2 space-y-2">
+                      {pantryItems.map(item => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handlePantryItemSelect(item)}
+                          className="w-full flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-blue-50 transition-colors border border-gray-100"
+                        >
+                          {item.image ? (
+                            <img 
+                              src={item.image} 
+                              alt={item.name}
+                              className="w-12 h-12 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                              <Utensils className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 text-left">
+                            <p className="font-medium text-gray-800">{item.name}</p>
+                            {(item.calories || item.protein) && (
+                              <p className="text-sm text-gray-500">
+                                {item.calories && `${item.calories} cal`}
+                                {item.protein && ` • ${item.protein}g protein`}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-blue-600">
+                            <Plus className="w-4 h-4" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Image Capture */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
