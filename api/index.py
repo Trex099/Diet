@@ -1,15 +1,10 @@
-import os
-import sys
-from pathlib import Path
+from http.server import BaseHTTPRequestHandler
 
-# Add the backend directory to the path so we can import from it
-sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
-
-# Import app from backend/server.py
-from server import app
-
-# Use Mangum to handle AWS Lambda integration
-from mangum import Mangum
-
-# Create the handler
-handler = Mangum(app) 
+# Simple handler for testing
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(str('{"status": "ok", "message": "API is working!"}').encode())
+        return 

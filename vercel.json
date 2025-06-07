@@ -1,16 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "frontend/package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } },
-    { "src": "api/index.py", "use": "@vercel/python", "config": { "runtime": "python3.9", "includeFiles": ["backend/**"] } }
-  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/build",
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.py" },
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "frontend/build/$1" }
-  ],
-  "env": {
-    "MONGO_URL": "@mongo_url",
-    "DB_NAME": "@db_name"
-  }
+    { "src": "/api/(.*)", "dest": "/api/index.py" },
+    { "src": "/(.*)", "dest": "/" }
+  ]
 } 
