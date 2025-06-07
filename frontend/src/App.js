@@ -374,27 +374,48 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood, isPantry = false }) => {
 };
 
 // Water Edit Modal
-const WaterEditModal = ({ isOpen, onClose, currentIntake, dailyGoal, onUpdate }) => {
+const WaterEditModal = ({ isOpen, onClose, currentIntake, dailyGoal, waterUnit, onUpdate }) => {
   const [intake, setIntake] = useState(currentIntake);
   const [goal, setGoal] = useState(dailyGoal);
+  const [unit, setUnit] = useState(waterUnit);
 
   useEffect(() => {
     setIntake(currentIntake);
     setGoal(dailyGoal);
-  }, [currentIntake, dailyGoal]);
+    setUnit(waterUnit);
+  }, [currentIntake, dailyGoal, waterUnit]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onUpdate(parseInt(intake), parseInt(goal));
+    onUpdate(parseInt(intake), parseInt(goal), unit);
     toast.success('Water settings updated!');
     onClose();
   };
 
   const handleReset = () => {
     setIntake(0);
-    onUpdate(0, goal);
+    onUpdate(0, goal, unit);
     toast.success('Water intake reset for today!');
   };
+
+  const handleUnitToggle = () => {
+    const newUnit = unit === 'glasses' ? 'bottles' : 'glasses';
+    setUnit(newUnit);
+    
+    // Convert values when switching units
+    if (newUnit === 'bottles') {
+      // Convert glasses to litres (rough conversion: 8 glasses = 2 litres)
+      setGoal(Math.max(1, Math.round(goal / 4)));
+      setIntake(Math.round(intake / 4));
+    } else {
+      // Convert litres to glasses (rough conversion: 1 litre = 4 glasses)
+      setGoal(Math.max(1, goal * 4));
+      setIntake(intake * 4);
+    }
+  };
+
+  const unitLabel = unit === 'bottles' ? 'litres' : 'glasses';
+  const quickPresets = unit === 'bottles' ? [1, 2, 3, 4] : [6, 8, 10, 12];
 
   if (!isOpen) return null;
 
@@ -412,10 +433,41 @@ const WaterEditModal = ({ isOpen, onClose, currentIntake, dailyGoal, onUpdate })
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Unit Toggle */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Measurement Unit
+            </label>
+            <div className="flex items-center gap-3 bg-gray-100 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={handleUnitToggle}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                  unit === 'glasses'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600'
+                }`}
+              >
+                🥛 Glasses
+              </button>
+              <button
+                type="button"
+                onClick={handleUnitToggle}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                  unit === 'bottles'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600'
+                }`}
+              >
+                🍼 Bottles (Litres)
+              </button>
+            </div>
+          </div>
+
           {/* Current Intake */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Current Intake (glasses)
+              Current Intake ({unitLabel})
             </label>
             <div className="flex items-center gap-3">
               <button
@@ -445,7 +497,7 @@ const WaterEditModal = ({ isOpen, onClose, currentIntake, dailyGoal, onUpdate })
           {/* Daily Goal */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Daily Goal (glasses)
+              Daily Goal ({unitLabel})
             </label>
             <div className="flex items-center gap-3">
               <button
@@ -492,9 +544,11 @@ const WaterEditModal = ({ isOpen, onClose, currentIntake, dailyGoal, onUpdate })
 
         {/* Quick Goal Presets */}
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600 mb-3">Quick goal presets:</p>
+          <p className="text-sm text-gray-600 mb-3">
+            Quick goal presets ({unitLabel}):
+          </p>
           <div className="flex gap-2">
-            {[6, 8, 10, 12].map(preset => (
+            {quickPresets.map(preset => (
               <button
                 key={preset}
                 type="button"
@@ -505,7 +559,7 @@ const WaterEditModal = ({ isOpen, onClose, currentIntake, dailyGoal, onUpdate })
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                {preset}
+                {preset}{unit === 'bottles' ? 'L' : ''}
               </button>
             ))}
           </div>
