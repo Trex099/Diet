@@ -823,12 +823,28 @@ const HistoryScreen = () => {
 };
 
 // Pantry Card Component
-const PantryCard = ({ item, onClick }) => {
+const PantryCard = ({ item, onClick, onDelete }) => {
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this item from pantry?')) {
+      onDelete(item.id);
+      toast.success('Item removed from pantry');
+    }
+  };
+
   return (
     <div 
-      className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-400 cursor-pointer transform hover:scale-[1.02]"
+      className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-400 cursor-pointer transform hover:scale-[1.02] relative group"
       onClick={() => onClick(item)}
     >
+      {/* Delete Button */}
+      <button
+        onClick={handleDelete}
+        className="absolute top-2 right-2 bg-red-500/80 backdrop-blur-sm text-white p-1.5 rounded-full hover:bg-red-600/90 transition-colors z-10 opacity-0 group-hover:opacity-100"
+      >
+        <Trash2 className="w-3 h-3" />
+      </button>
+
       {item.image ? (
         <div className="relative h-32 overflow-hidden">
           <img 
@@ -847,7 +863,7 @@ const PantryCard = ({ item, onClick }) => {
         </div>
       )}
       <div className="p-3">
-        {!item.image && <h3 className="font-bold text-gray-800 text-sm mb-1">{item.name}</h3>}
+        {!item.image && <h3 className="font-bold text-gray-800 text-sm mb-1 pr-6">{item.name}</h3>}
         {(item.calories || item.protein || item.carbs || item.fat) && (
           <div className="text-xs text-gray-500">
             {item.calories && `${item.calories} cal`}
@@ -873,6 +889,13 @@ const PantryScreen = () => {
     const newEntries = [item, ...allEntries];
     saveToStorage('foodEntries', newEntries);
     setPantryItems([item, ...pantryItems]);
+  };
+
+  const deleteFromPantry = (itemId) => {
+    const allEntries = loadFromStorage('foodEntries', []);
+    const newEntries = allEntries.filter(entry => entry.id !== itemId);
+    saveToStorage('foodEntries', newEntries);
+    setPantryItems(pantryItems.filter(item => item.id !== itemId));
   };
 
   const handleItemClick = (item) => {
@@ -913,6 +936,7 @@ const PantryScreen = () => {
                 key={item.id} 
                 item={item}
                 onClick={handleItemClick}
+                onDelete={deleteFromPantry}
               />
             ))}
           </div>
