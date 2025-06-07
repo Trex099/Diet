@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { Camera, Plus, X, Droplets, Calendar, Book, Coffee, Sun, Moon, Utensils } from 'lucide-react';
+import { Camera, Plus, X, Droplets, Calendar, Book, Coffee, Sun, Moon, Utensils, Maximize2, Eye } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
