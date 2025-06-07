@@ -596,24 +596,117 @@ const HistoryScreen = () => {
   );
 };
 
+// Pantry Card Component
+const PantryCard = ({ item, onClick }) => {
+  return (
+    <div 
+      className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-400 cursor-pointer transform hover:scale-[1.02]"
+      onClick={() => onClick(item)}
+    >
+      {item.image ? (
+        <div className="relative h-32 overflow-hidden">
+          <img 
+            src={item.image} 
+            alt={item.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute bottom-2 left-2 text-white">
+            <h3 className="font-bold text-sm">{item.name}</h3>
+          </div>
+        </div>
+      ) : (
+        <div className="h-32 bg-gray-100 flex items-center justify-center">
+          <Utensils className="w-8 h-8 text-gray-400" />
+        </div>
+      )}
+      <div className="p-3">
+        {!item.image && <h3 className="font-bold text-gray-800 text-sm mb-1">{item.name}</h3>}
+        {(item.calories || item.protein || item.carbs || item.fat) && (
+          <div className="text-xs text-gray-500">
+            {item.calories && `${item.calories} cal`}
+            {item.protein && ` • ${item.protein}g protein`}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Pantry Screen
 const PantryScreen = () => {
+  const [pantryItems, setPantryItems] = useState(() => 
+    loadFromStorage('foodEntries', []).filter(item => item.isPantryItem)
+  );
+  const [showAddToPantry, setShowAddToPantry] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const addToPantry = (item) => {
+    const allEntries = loadFromStorage('foodEntries', []);
+    const newEntries = [item, ...allEntries];
+    saveToStorage('foodEntries', newEntries);
+    setPantryItems([item, ...pantryItems]);
+  };
+
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setShowDetailModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm">
         <div className="px-4 py-6">
-          <h1 className="text-2xl font-bold text-gray-800">Pantry</h1>
-          <p className="text-gray-600">Your saved foods</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Pantry</h1>
+              <p className="text-gray-600">Your saved foods</p>
+            </div>
+            <button
+              onClick={() => setShowAddToPantry(true)}
+              className="bg-pink-500 text-white p-3 rounded-xl hover:bg-pink-600 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="px-4 py-6">
-        <div className="bg-white rounded-2xl p-8 text-center">
-          <Book className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500">Pantry coming soon</p>
-          <p className="text-gray-400 text-sm mt-1">Save frequently eaten foods for quick logging</p>
-        </div>
+        {pantryItems.length === 0 ? (
+          <div className="bg-white rounded-2xl p-8 text-center">
+            <Book className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-500">Your pantry is empty</p>
+            <p className="text-gray-400 text-sm mt-1">Add foods you eat frequently for quick logging</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {pantryItems.map(item => (
+              <PantryCard 
+                key={item.id} 
+                item={item}
+                onClick={handleItemClick}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Add to Pantry Modal */}
+      <AddFoodModal 
+        isOpen={showAddToPantry}
+        onClose={() => setShowAddToPantry(false)}
+        onAddFood={addToPantry}
+        isPantry={true}
+      />
+
+      {/* Food Detail Modal */}
+      <FoodDetailModal
+        entry={selectedItem}
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+      />
     </div>
   );
 };
