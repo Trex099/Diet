@@ -515,17 +515,26 @@ const TodayScreen = () => {
 // History Screen
 const HistoryScreen = () => {
   const [foodEntries] = useState(() => loadFromStorage('foodEntries', []));
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   
-  // Group entries by date
-  const entriesByDate = foodEntries.reduce((acc, entry) => {
-    if (!acc[entry.date]) {
-      acc[entry.date] = [];
-    }
-    acc[entry.date].push(entry);
-    return acc;
-  }, {});
+  // Group entries by date (exclude pantry items)
+  const entriesByDate = foodEntries
+    .filter(entry => !entry.isPantryItem)
+    .reduce((acc, entry) => {
+      if (!acc[entry.date]) {
+        acc[entry.date] = [];
+      }
+      acc[entry.date].push(entry);
+      return acc;
+    }, {});
 
   const dates = Object.keys(entriesByDate).sort().reverse();
+
+  const handleEntryClick = (entry) => {
+    setSelectedEntry(entry);
+    setShowDetailModal(true);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -551,7 +560,11 @@ const HistoryScreen = () => {
               </h3>
               <div className="space-y-2">
                 {entriesByDate[date].map(entry => (
-                  <div key={entry.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                  <div 
+                    key={entry.id} 
+                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleEntryClick(entry)}
+                  >
                     {entry.image && (
                       <img src={entry.image} alt={entry.name} className="w-12 h-12 object-cover rounded-lg" />
                     )}
@@ -559,9 +572,12 @@ const HistoryScreen = () => {
                       <p className="font-medium text-gray-800">{entry.name}</p>
                       <p className="text-sm text-gray-600">{entry.mealType} • {entry.time}</p>
                     </div>
-                    {entry.calories && (
-                      <span className="text-sm text-gray-500">{entry.calories} cal</span>
-                    )}
+                    <div className="text-right">
+                      {entry.calories && (
+                        <span className="text-sm text-gray-500">{entry.calories} cal</span>
+                      )}
+                      <Eye className="w-4 h-4 text-gray-400 mt-1" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -569,6 +585,13 @@ const HistoryScreen = () => {
           ))
         )}
       </div>
+
+      {/* Food Detail Modal */}
+      <FoodDetailModal
+        entry={selectedEntry}
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+      />
     </div>
   );
 };
