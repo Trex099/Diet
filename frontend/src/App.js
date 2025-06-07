@@ -405,14 +405,17 @@ const FoodDetailModal = ({ entry, isOpen, onClose }) => {
     </div>
   );
 };
+// Today Screen
 const TodayScreen = () => {
   const [foodEntries, setFoodEntries] = useState(() => loadFromStorage('foodEntries', []));
   const [waterIntake, setWaterIntake] = useState(() => loadFromStorage('waterIntake', 0));
   const [showAddFood, setShowAddFood] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const navigate = useNavigate();
 
   const todayEntries = foodEntries.filter(entry => 
-    entry.date === format(new Date(), 'yyyy-MM-dd')
+    entry.date === format(new Date(), 'yyyy-MM-dd') && !entry.isPantryItem
   );
 
   const addFood = (entry) => {
@@ -426,6 +429,11 @@ const TodayScreen = () => {
     setWaterIntake(newIntake);
     saveToStorage('waterIntake', newIntake);
     toast.success('Water logged! 💧');
+  };
+
+  const handleCardClick = (entry) => {
+    setSelectedEntry(entry);
+    setShowDetailModal(true);
   };
 
   return (
@@ -471,7 +479,7 @@ const TodayScreen = () => {
                 <FoodEntryCard 
                   key={entry.id} 
                   entry={entry}
-                  onClick={() => {}}
+                  onClick={handleCardClick}
                 />
               ))}
             </div>
@@ -484,6 +492,13 @@ const TodayScreen = () => {
         isOpen={showAddFood}
         onClose={() => setShowAddFood(false)}
         onAddFood={addFood}
+      />
+
+      {/* Food Detail Modal */}
+      <FoodDetailModal
+        entry={selectedEntry}
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
       />
 
       {/* FAB */}
