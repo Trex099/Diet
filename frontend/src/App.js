@@ -372,7 +372,147 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood, isPantry = false }) => {
   );
 };
 
-// Food Detail Modal
+// Water Edit Modal
+const WaterEditModal = ({ isOpen, onClose, currentIntake, dailyGoal, onUpdate }) => {
+  const [intake, setIntake] = useState(currentIntake);
+  const [goal, setGoal] = useState(dailyGoal);
+
+  useEffect(() => {
+    setIntake(currentIntake);
+    setGoal(dailyGoal);
+  }, [currentIntake, dailyGoal]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onUpdate(parseInt(intake), parseInt(goal));
+    toast.success('Water settings updated!');
+    onClose();
+  };
+
+  const handleReset = () => {
+    setIntake(0);
+    onUpdate(0, goal);
+    toast.success('Water intake reset for today!');
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-800">Water Settings</h2>
+          <button 
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Current Intake */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Current Intake (glasses)
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIntake(Math.max(0, intake - 1))}
+                className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                value={intake}
+                onChange={(e) => setIntake(Math.max(0, parseInt(e.target.value) || 0))}
+                className="flex-1 p-3 border border-gray-300 rounded-xl text-center focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                min="0"
+              />
+              <button
+                type="button"
+                onClick={() => setIntake(intake + 1)}
+                className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {/* Daily Goal */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Daily Goal (glasses)
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setGoal(Math.max(1, goal - 1))}
+                className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                value={goal}
+                onChange={(e) => setGoal(Math.max(1, parseInt(e.target.value) || 1))}
+                className="flex-1 p-3 border border-gray-300 rounded-xl text-center focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                min="1"
+              />
+              <button
+                type="button"
+                onClick={() => setGoal(goal + 1)}
+                className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+            >
+              Reset Today
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-blue-500 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition-colors"
+            >
+              Update
+            </button>
+          </div>
+        </form>
+
+        {/* Quick Goal Presets */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <p className="text-sm text-gray-600 mb-3">Quick goal presets:</p>
+          <div className="flex gap-2">
+            {[6, 8, 10, 12].map(preset => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setGoal(preset)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  goal === preset
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 const FoodDetailModal = ({ entry, isOpen, onClose }) => {
   if (!isOpen || !entry) return null;
 
