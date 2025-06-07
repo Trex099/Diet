@@ -583,7 +583,9 @@ const FoodDetailModal = ({ entry, isOpen, onClose }) => {
 const TodayScreen = () => {
   const [foodEntries, setFoodEntries] = useState(() => loadFromStorage('foodEntries', []));
   const [waterIntake, setWaterIntake] = useState(() => loadFromStorage('waterIntake', 0));
+  const [waterGoal, setWaterGoal] = useState(() => loadFromStorage('waterGoal', 8));
   const [showAddFood, setShowAddFood] = useState(false);
+  const [showWaterEdit, setShowWaterEdit] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const navigate = useNavigate();
@@ -598,11 +600,24 @@ const TodayScreen = () => {
     saveToStorage('foodEntries', newEntries);
   };
 
+  const deleteFood = (entryId) => {
+    const newEntries = foodEntries.filter(entry => entry.id !== entryId);
+    setFoodEntries(newEntries);
+    saveToStorage('foodEntries', newEntries);
+  };
+
   const addWater = () => {
     const newIntake = waterIntake + 1;
     setWaterIntake(newIntake);
     saveToStorage('waterIntake', newIntake);
     toast.success('Water logged! 💧');
+  };
+
+  const updateWater = (newIntake, newGoal) => {
+    setWaterIntake(newIntake);
+    setWaterGoal(newGoal);
+    saveToStorage('waterIntake', newIntake);
+    saveToStorage('waterGoal', newGoal);
   };
 
   const handleCardClick = (entry) => {
@@ -635,7 +650,9 @@ const TodayScreen = () => {
         {/* Water Tracker */}
         <WaterTracker 
           currentIntake={waterIntake}
+          dailyGoal={waterGoal}
           onAddWater={addWater}
+          onEditWater={() => setShowWaterEdit(true)}
         />
 
         {/* Food Entries */}
@@ -654,6 +671,7 @@ const TodayScreen = () => {
                   key={entry.id} 
                   entry={entry}
                   onClick={handleCardClick}
+                  onDelete={deleteFood}
                 />
               ))}
             </div>
@@ -666,6 +684,15 @@ const TodayScreen = () => {
         isOpen={showAddFood}
         onClose={() => setShowAddFood(false)}
         onAddFood={addFood}
+      />
+
+      {/* Water Edit Modal */}
+      <WaterEditModal
+        isOpen={showWaterEdit}
+        onClose={() => setShowWaterEdit(false)}
+        currentIntake={waterIntake}
+        dailyGoal={waterGoal}
+        onUpdate={updateWater}
       />
 
       {/* Food Detail Modal */}
