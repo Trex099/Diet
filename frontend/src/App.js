@@ -338,7 +338,73 @@ const AddFoodModal = ({ isOpen, onClose, onAddFood, isPantry = false }) => {
   );
 };
 
-// Today Screen
+// Food Detail Modal
+const FoodDetailModal = ({ entry, isOpen, onClose }) => {
+  if (!isOpen || !entry) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto">
+        <div className="relative">
+          {entry.image && (
+            <div className="h-64 overflow-hidden rounded-t-2xl">
+              <img 
+                src={entry.image} 
+                alt={entry.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">{entry.name}</h2>
+          <p className="text-gray-600 mb-4">
+            {entry.mealType} {entry.time && `• ${entry.time}`}
+          </p>
+          
+          {(entry.calories || entry.protein || entry.carbs || entry.fat) && (
+            <div className="bg-gray-50 rounded-xl p-4">
+              <h3 className="font-semibold text-gray-800 mb-3">Nutrition Information</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {entry.calories && (
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{entry.calories}</p>
+                    <p className="text-sm text-gray-600">Calories</p>
+                  </div>
+                )}
+                {entry.protein && (
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">{entry.protein}g</p>
+                    <p className="text-sm text-gray-600">Protein</p>
+                  </div>
+                )}
+                {entry.carbs && (
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-orange-600">{entry.carbs}g</p>
+                    <p className="text-sm text-gray-600">Carbs</p>
+                  </div>
+                )}
+                {entry.fat && (
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-purple-600">{entry.fat}g</p>
+                    <p className="text-sm text-gray-600">Fat</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 const TodayScreen = () => {
   const [foodEntries, setFoodEntries] = useState(() => loadFromStorage('foodEntries', []));
   const [waterIntake, setWaterIntake] = useState(() => loadFromStorage('waterIntake', 0));
